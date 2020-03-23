@@ -14,61 +14,77 @@ namespace GildedRose
         {
             foreach (var item in Items)
             {
-                if (item.Name != "Aged Brie" && item.Name != "Backstage passes to a TAFKAL80ETC concert" && item.Name != "Sulfuras, Hand of Ragnaros")
+                if (item.Name.StartsWith("Backstage passes"))
+                { 
+                    item.Quality =UpdateBackstagePassQuality(item);
+                }
+                else if (item.Name.StartsWith("Aged Brie")&& item.Quality <50)
                 {
-                    if (item.Quality > 0)
-                    {
-                        item.Quality--;
-                    }
+                    item.Quality += UpdateBrieQuality(item);
                 } 
-                else if (item.Quality < 50)
+                else if (item.Name.StartsWith("Sulfuras"))
                 {
-                    item.Quality ++;
-                    if (item.Name.StartsWith("Backstage passes"))
-                    {
-                        if (item.SellIn < 11 && item.Quality < 50)
-                        {
-                            item.Quality +=1;
-                        }
+                    item.Quality = 80;
+                }
+                else
+                {
+                    item.Quality += UpdateNormalItemQuality(item);
+                }
+                UpdateSellIn(item);
+            }
+        }
+        
+        private int UpdateSellIn(Item item)
+        {
+            if (item.Name.StartsWith("Sulfuras"))
+            {
+                return item.SellIn;
+            }
+            else
+            {
+                return item.SellIn--;
+            }
+        }
 
-                        if (item.SellIn < 6 && item.Quality < 50)
-                        {
-                            item.Quality +=1;
-                        }
-                    }
-                }
-                if (item.Name != "Sulfuras, Hand of Ragnaros")
-                {
-                    item.SellIn --;
-                }
+        private int UpdateBrieQuality(Item item)
+        {
+            return item.SellIn < 0 ? 2 : 1;
+        }
 
-                if (item.SellIn < 0)
+        private int UpdateBackstagePassQuality(Item item)
+        {
+            if (item.SellIn <=10)
+            {
+                if (item.SellIn <= 5 && item.SellIn > 0)
                 {
-                    if (item.Name != "Aged Brie")
-                    {
-                        if (item.Name != "Backstage passes to a TAFKAL80ETC concert")
-                        {
-                            if (item.Quality > 0)
-                            {
-                                if (item.Name != "Sulfuras, Hand of Ragnaros")
-                                {
-                                    item.Quality --;
-                                }
-                            }
-                        }
-                        else
-                        {
-                            item.Quality -= item.Quality;
-                        }
-                    }
-                    else
-                    {
-                        if (item.Quality < 50)
-                        {
-                            item.Quality ++;
-                        }
-                    }
+                    return item.Quality += 3;
+                } 
+                else if (item.SellIn <= 0)
+                {
+                    return item.Quality = 0;
                 }
+                
+                return item.Quality += 2;
+            }
+            else if(item.Quality <50)
+            {
+                return item.Quality++;
+            }
+            else
+            {
+                return item.Quality;
+            }
+        }
+        
+        private int UpdateNormalItemQuality(Item item)
+        {
+            if (item.Quality > 0)
+            {
+                return -1;
+            }
+            else
+            {
+                return item.Quality;
             }
         }
     }
